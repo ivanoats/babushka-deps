@@ -7,7 +7,7 @@ dep 'mongodb source' do
 end
 
 dep 'mongo startup' do
-  met? { Dir["/etc/rc2.d/*mongodb"].empty? }
+  met? { !Dir["/etc/rc2.d/*mongodb"].empty? }
   meet { shell("sudo update-rc.d mongodb defaults",:sudo=>true) }
 end
 

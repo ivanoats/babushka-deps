@@ -142,6 +142,6 @@ end
 
 #mongo
 dep 'mongodb.managed' do
-  installs { via :apt, 'mongodb'}
+  installs { via :apt, 'mongodb-snapshot'}
   provides []  
 end
