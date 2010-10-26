@@ -6,5 +6,5 @@ end
 dep 'rvm system-wide' do
   requires 'rvm requirements'
   met? { File.exist?("/usr/local/bin/rvm") }
-  meet { sudo "bash < <( curl -L http://bit.ly/rvm-install-system-wide )" }
+  meet { shell "bash -c "`curl -L http://bit.ly/rvm-install-system-wide`" }
 end
