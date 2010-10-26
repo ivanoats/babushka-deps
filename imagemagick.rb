@@ -7,5 +7,5 @@ dep 'imagemagick', :template => 'managed' do
 end
 
 dep 'rmagick', :template => 'gem' do
-  requires 'imagemagick'
+  requires 'imagemagick',"libmagickcore-dev"
 end
