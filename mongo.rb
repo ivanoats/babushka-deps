@@ -16,3 +16,12 @@ dep 'mongodb' do
   met? { File.exist?("/data/db") }
   meet { shell("mkdir -p /data/db", :sudo=>true) }
 end
+
+dep 'mongodb js fix' do
+  requires 'xulrunner.managed'
+  met? { File.exist?("/usr/lib/libmozjs.so") }
+  meet { 
+    lib_path = Dir["/usr/lib/xulrunner-1*"].first
+    shell("ln -s #{lib_path}/libmozjs.so /usr/lib/", :sudo=>true)
+  }
+end

@@ -142,6 +142,12 @@ end
 
 #mongo
 dep 'mongodb.managed' do
-  installs { via :apt, 'mongodb-snapshot'}
+  installs { via :apt, 'mongodb'}
   provides []  
+end
+
+#xulrunner can be used to for libmozjs.so for mongo fix
+dep 'xulrunner.managed' do
+  installs { via :apt, "xulrunner-dev"}
+  provides []
 end
