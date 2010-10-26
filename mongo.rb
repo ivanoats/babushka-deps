@@ -1,32 +1,5 @@
-dep 'mongodb source' do
-  met? {  shell("cat /etc/apt/sources.list").split("\n").grep(/downloads.mongodb.org/).empty? } 
-  meet {  
-    append_to_file "deb http://downloads.mongodb.org/distros/ubuntu 10.4 10gen", "/etc/apt/sources", :sudo=>true 
-  }
-  after { Babushka::AptHelper.update_pkg_lists }
-end
-
-dep 'mongo startup' do
-  met? { !Dir["/etc/rc2.d/*mongodb"].empty? }
-  meet { shell("sudo update-rc.d mongodb defaults",:sudo=>true) }
-end
-
-dep 'mongodb' do
-  requires 'mongodb source', "mongodb.managed", 'mongo startup'
-  met? { File.exist?("/data/db") }
-  meet { shell("mkdir -p /data/db", :sudo=>true) }
-end
-
-dep 'mongodb js fix' do
-  requires 'xulrunner.managed'
-  met? { File.exist?("/usr/lib/libmozjs.so") }
-  meet { 
-    lib_path = Dir["/usr/lib/xulrunner-1*"].first
-    shell("ln -s #{lib_path}/libmozjs.so /usr/lib/", :sudo=>true)
-  }
-end
-
 dep 'mongodb.src' do
+  requires 'mongo startup'
   source 'http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-1.6.3.tgz'
   provides 'mongod'
   configure {
@@ -38,6 +11,11 @@ dep 'mongodb.src' do
     Dir["/usr/local/mongo/bin/*"].each do |link|
       filename = link.split("/").last
       shell "ln -s #{link} /usr/bin/#{filename}", :sudo=>true
-    end
+    end    
   }
+end
+
+dep 'mongo startup' do
+  met? { File.exist?("/etc/init.d/mongodb") }
+  meet { render_erb "mongo/mongo_init", :to => "/etc/init.d/mongodb", :sudo=>true }
 end
