@@ -1,6 +1,7 @@
 dep 'imagemagick', :template => 'managed' do
   installs {
     via :brew, 'imagemagick'
+    via :apt, 'imagemagick'
   }
   provides 'convert'
 end
