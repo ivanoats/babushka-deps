@@ -6,5 +6,5 @@ dep 'sphinx.src' do
   #     ("--with-pgsql=#{shell 'pg_config --pkgincludedir'}" if confirm("Build with postgres support?")),
   #     ("--without-mysql" unless confirm("Build with mysql support?"))
   #   ].compact.join(" ")
-  }
+  # }
 end
