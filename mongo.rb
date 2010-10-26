@@ -25,3 +25,7 @@ dep 'mongodb js fix' do
     shell("ln -s #{lib_path}/libmozjs.so /usr/lib/", :sudo=>true)
   }
 end
+
+dep 'mongodb 64bit source' do
+  source 'http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-1.6.3.tgz'
+end
