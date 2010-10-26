@@ -8,4 +8,6 @@ end
 
 dep 'mongodb' do
   requires 'mongodb source', "mongodb.managed"
+  met? { File.exist?("/data/db") }
+  meet { shell("mkdir -p /data/db") }
 end
