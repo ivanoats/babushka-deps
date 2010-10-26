@@ -29,11 +29,13 @@ end
 dep 'mongodb.src' do
   source 'http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-1.6.3.tgz'
   provides 'mongod'
+  configure {
+    shell "mkdir -p /usr/local/mongo", :sudo=>true
+  }
+  build { shell "ls" }
   install {
-    shell "mkdir -p /usr/local/mongo", :sudo=>true
-    Babushka::SrcHelper.install_src! "cp bin /usr/local/mongo",:sudo=>true
-    shell "mkdir -p /usr/local/mongo", :sudo=>true
-    Dir["/usr/local/mongo/bin/*.*"].each do |link|
+    shell "cp -R bin /usr/local/mongo",:sudo=>true
+    Dir["/usr/local/mongo/bin/*"].each do |link|
       filename = link.split("/").last
       shell "ln -s #{link} /usr/bin/#{filename}", :sudo=>true
     end
