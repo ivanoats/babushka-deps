@@ -101,3 +101,41 @@ dep 'php5.managed' do
   installs { via :apt, 'php5' }
   provides []
 end
+
+# linux cores for rvm
+dep 'build-essential.managed' do
+  installs { via :apt, 'build-essential'}
+  provides []
+end
+dep 'bison.managed' do
+  installs { via :apt, 'bison'}
+  provides []
+end
+dep 'openssl.managed' do
+  installs { via :apt, 'openssl'}
+  provides []
+end
+dep 'libreadline5.managed' do
+  installs { via :apt, 'libreadline5'}
+  provides []
+end
+dep 'libreadline_dev.managed' do
+  installs { via :apt, 'libreadline-dev'}
+  provides []
+end
+dep 'zlib1g.managed' do
+  installs { via :apt, 'zlib1g','zlib1g-dev'}
+  provides []
+end
+dep 'libssl_dev.managed' do
+  installs { via :apt, 'libsqlite3-0'}
+  provides []  
+end
+dep 'libsqlite3.managed' do
+  installs { via :apt, 'libsqlite3-0', "libsqlite3-dev", "sqlite3"}
+  provides []  
+end
+dep 'libxml2-dev.managed' do
+  installs { via :apt, 'libxml2-dev'}
+  provides []  
+end
