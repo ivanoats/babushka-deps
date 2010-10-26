@@ -6,8 +6,8 @@ dep 'mongodb source' do
   after { Babushka::AptHelper.update_pkg_lists }
 end
 
-def 'mongo startup' do
-  met? { shell("ls -l /etc/rc2.d/*mongodb").split("\n").empty? }
+dep 'mongo startup' do
+  met? { Dir["/etc/rc2.d/*mongodb"].empty? }
   meet { shell("sudo update-rc.d mongodb defaults",:sudo=>true) }
 end
 
