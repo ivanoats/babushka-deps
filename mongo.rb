@@ -17,5 +17,8 @@ end
 
 dep 'mongo startup' do
   met? { File.exist?("/etc/init.d/mongodb") }
-  meet { render_erb "mongo/mongo_init", :to => "/etc/init.d/mongodb", :sudo=>true }
+  meet { 
+    render_erb "mongo/mongo_init", :to => "/etc/init.d/mongodb", :sudo=>true 
+    shell "chmod 744 /etc/init.d/mongodb", :sudo=>true
+  }
 end
