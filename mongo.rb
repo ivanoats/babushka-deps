@@ -26,6 +26,7 @@ dep 'mongodb js fix' do
   }
 end
 
-dep 'mongodb 64bit source' do
+dep 'mongodb.src' do
   source 'http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-1.6.3.tgz'
+  provides 'mongodb'
 end
