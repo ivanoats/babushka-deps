@@ -93,3 +93,9 @@ dep 'zlib headers.managed' do
   installs { via :apt, 'zlib1g-dev' }
   provides []
 end
+dep 'apache2.managed' do
+  installs { via :apt, 'apache2' }
+end
+dep 'php5.mamaged' do
+  installs { via :apt, 'php5' }
+end
