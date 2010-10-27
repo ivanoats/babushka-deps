@@ -19,7 +19,7 @@ dep "capistrano bundler setup" do
   }  
 end
 
-def "capistrano config files" do
+dep "capistrano config files" do
   met? {
     in_dir(var(:rails_root)) { File.exist?("config/deploy") && File.exist?("config/deploy/staging.rb")
   }
