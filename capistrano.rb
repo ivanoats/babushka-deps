@@ -14,9 +14,9 @@ end
 
 dep "capistrano gem" do
   met? { 
-    in_dir(var(:rails_root)) { shell("cat Gemfile").split("\n").grep("capistrano") }
+    in_dir(var(:rails_root)) { !shell("cat Gemfile").split("\n").grep("capistrano").empty? }
   }
   meet {
-    in_dir(var(:rails_root)) { append_to_file("# Capistrano deploy files\ngem 'capistrano'\n gem 'capistrano-ext'\n", "Gemfile") }
+    append_to_file("gem 'capistrano'\n gem 'capistrano-ext'\n", "#{var(:rails_root)}/Gemfile")
   }  
 end
