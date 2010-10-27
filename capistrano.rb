@@ -14,9 +14,9 @@ end
 
 dep "capistrano bundler setup" do
   met? { 
-    in_dir(var(:rails_root)) { !shell("cat Gemfile").split("\n").grep("capistrano").empty? }
+    in_dir(var(:rails_root)) { !shell("cat Gemfile").split("\n").grep('gem "capistrano"').empty? }
   }
   meet {
-    append_to_file('gem "capistrano"', "#{var(:rails_root)}/Gemfile")
+    append_to_file('gem "capistrano"\ngem "capistrano-ext"', "#{var(:rails_root)}/Gemfile")
   }  
 end
