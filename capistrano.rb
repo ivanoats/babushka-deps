@@ -1,5 +1,5 @@
 dep "capify" do 
-  requires 'capistrano gem'
+  requires 'capistrano bundler setup'
   met? { 
     in_dir(var(:rails_root)) { File.exist?("Capfile")}
   }
@@ -12,11 +12,11 @@ dep "capify" do
   }
 end
 
-dep "capistrano gem" do
+dep "capistrano bundler setup" do
   met? { 
     in_dir(var(:rails_root)) { !shell("cat Gemfile").split("\n").grep("capistrano").empty? }
   }
   meet {
-    append_to_file("gem \'capistrano\'", "#{var(:rails_root)}/Gemfile")
+    append_to_file("gem 'capistrano'\n gem 'capistrano-ext'\n", "#{var(:rails_root)}/Gemfile")
   }  
 end
