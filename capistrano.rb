@@ -21,7 +21,7 @@ end
 
 dep "capistrano config files" do
   met? {
-    in_dir(var(:rails_root)) { File.exist?("config/deploy") && File.exist?("config/deploy/staging.rb")
+    in_dir(var(:rails_root)) { File.exist?("config/deploy") && File.exist?("config/deploy/staging.rb") }
   }
   meet {
     in_dir(var(:rails_root)) { 
