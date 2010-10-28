@@ -31,6 +31,13 @@ def run_rake(task)
   run("cd #{current_release} && rake #{task} RAILS_ENV=#{rails_env}")
 end
 
+namespace :db do
+  desc "Seed the database"
+  task :seed, :roles => :app, :except => { :no_release => true } do
+    rake_task = "db:seed"
+    run("cd #{current_release} && rake #{rake_task} RAILS_ENV=#{rails_env}")
+  end
+end
 
 namespace :deploy do
   desc "Warn of about to deploy"
