@@ -1,3 +1,9 @@
+meta :system_rvm do
+  def system_rvm args
+    shell "/usr/local/lib/rvm/bin/rvm #{args}", :log => args['install']
+  end
+end
+
 # set up the system libraries
 dep 'rvm requirements' do 
   requires %w(build-essential.managed bison.managed openssl.managed libreadline5.managed libreadline_dev.managed zlib1g.managed libssl_dev.managed libsqlite3.managed libxml2-dev.managed)  
@@ -41,19 +47,38 @@ end
 
 dep 'installed default ruby' do
   before { var(:default_ruby, :default => "ree") }
-  met? { shell("rvm list rubies").include?(var(:default_ruby)) }
-  meet { shell("rvm install #{var(:default_ruby)}")}
+  met? { rvm("list")[var(:default_ruby)] }  
+  meet { rvm("use #{var(:default_ruby)} --default") }
 end
 
 dep 'default ruby' do
   requires 'rvm user group'  
   requires 'installed default ruby'
   before { var(:default_ruby, :default => "ree") }
-  met? { shell("rvm list rubies").include?("=>") }
+  met? { shell("rvm list").include?("=>") }
   meet { shell("rvm use #{var(:default_ruby)} --default")}
 end
 
 dep 'rvm group exists' do
   met? { !shell("grep rvm /etc/group").nil? }
   meet { sudo("groupadd rvm") }
+end
+
+dep 'rvmd passenger install' do
+  requires 'rvmd passenger gem'
+  # requires 'rvmd passenger module'
+end
+
+dep 'rvmd passenger gem' do
+  before { 
+    var(:passenger_ruby, :default => "ree") 
+    var(:install_passenger_version, :default=>"3.0.2")
+  }
+  met? { shell("rvm use #{var(:passenger_ruby)} && gem list").include?("passenger") }
+  meet { shell("rvm use #{var(:passenger_ruby)} && gem install passenger --version=#{var(:install_passenger_version)}") }  
+end
+
+dep 'rvmd passenger module' do
+  met? { !shell("grep passenger /etc/apache2/apache2.conf").nil? }
+  meet { render_erb "rvm/module_conf.erb", :to => "/etc/apache2/apache2.conf", :sudo => true}
 end
