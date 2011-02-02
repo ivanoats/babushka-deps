@@ -12,6 +12,7 @@ dep 'rvm system-wide' do
 end
 
 dep 'rvm current user group' do
+  requires 'rvm group exists'
   met?{ 
     current_user = shell("whoami")
     shell("groups #{current_user}").split(" ").include?("rvm")
@@ -24,6 +25,7 @@ end
 
 
 dep 'rvm user group' do
+  requires 'rvm group exists'
   before {
     var(:rvm_username, :default => shell("whoami"))
   }
@@ -47,4 +49,9 @@ dep 'default ruby' do
   before { var(:default_ruby, :default => "ree") }
   met? { shell("rvm list rubies").include?("=>") }
   meet { shell("rvm use #{var(:default_ruby)} --default")}
+end
+
+dep 'rvm group exists' do
+  met? { shell("grep rvm /etc/group").include?("rvm")}
+  meet { sudo("groupadd rvm") }
 end
