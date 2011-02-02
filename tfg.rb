@@ -2,6 +2,7 @@ dep 'build server' do
   requires 'passwordless ssh logins'
   requires 'rvm system-wide'
   requires 'hosts path'  
+  requires 'apache2.managed'
 end
 
 dep 'hosts path' do
