@@ -3,7 +3,8 @@ dep 'build server' do
   requires 'rvm system-wide'
   requires 'hosts path'  
   requires 'apache2.managed'
-  requires 'apache2 remove defaults'
+  requires 'apache2 remove defaults'  
+  requires 'rvmd passenger install'
 end
 
 dep 'hosts path' do
