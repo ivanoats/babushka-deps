@@ -52,6 +52,6 @@ dep 'default ruby' do
 end
 
 dep 'rvm group exists' do
-  met? { shell("grep rvm /etc/group").include?("rvm")}
+  met? { !shell("grep rvm /etc/group").nil? }
   meet { sudo("groupadd rvm") }
 end
