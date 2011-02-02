@@ -46,7 +46,6 @@ dep 'rvm user group' do
 end
 
 dep 'installed default ruby' do
-  requires 'system_rvm'
   before { var(:default_ruby, :default => "ree") }
   met? { shell("rvm list").include?(var(:default_ruby)) }  
   meet { shell("rvm use #{var(:default_ruby)} --default") }
