@@ -5,6 +5,46 @@ end
 
 dep 'rvm system-wide' do
   requires 'rvm requirements'
+  requires 'rvm current user group'
+  requires 'rvm user group'
   met? { File.exist?("/usr/local/bin/rvm") }
   meet { shell "bash < <( curl -L http://bit.ly/rvm-install-system-wide )" }
+end
+
+dep 'rvm current user group' do
+  met?{ 
+    current_user = shell("whoami")
+    shell("groups #{current_user}").split(" ").include?("rvm")
+  }
+  meet{     
+    current_user = shell("whoami")
+    sudo("adduser #{current_user} rvm")
+  }
+end
+
+
+dep 'rvm user group' do
+  before {
+    var(:rvm_username, :default => shell("whoami"))
+  }
+  met?{ 
+    shell("groups #{var(:rvm_username)}").split(" ").include?("rvm")
+  }
+  meet{     
+    sudo("adduser #{var(:rvm_username)} rvm")
+  }
+end
+
+dep 'installed default ruby' do
+  before { var(:default_ruby, :default => "ree") }
+  met? { shell("rvm list rubies").include?(var(:default_ruby)) }
+  meet { shell("rvm install #{var(:default_ruby)}")}
+end
+
+dep 'default ruby' do
+  requires 'rvm user group'  
+  requires 'installed default ruby'
+  before { var(:default_ruby, :default => "ree") }
+  met? { shell("rvm list rubies").include?("=>") }
+  meet { shell("rvm use #{var(:default_ruby)} --default")}
 end
