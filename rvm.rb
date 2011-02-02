@@ -47,8 +47,8 @@ end
 
 dep 'installed default ruby' do
   before { var(:default_ruby, :default => "ree") }
-  met? { rvm("list")[var(:default_ruby)] }  
-  meet { rvm("use #{var(:default_ruby)} --default") }
+  met? { system_rvm("list")[var(:default_ruby)] }  
+  meet { system_rvm("use #{var(:default_ruby)} --default") }
 end
 
 dep 'default ruby' do
