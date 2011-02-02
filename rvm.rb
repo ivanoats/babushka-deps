@@ -48,8 +48,8 @@ end
 dep 'installed default ruby' do
   requires 'system_rvm'
   before { var(:default_ruby, :default => "ree") }
-  met? { system_rvm("list")[var(:default_ruby)] }  
-  meet { system_rvm("use #{var(:default_ruby)} --default") }
+  met? { shell("rvm list").include?(var(:default_ruby)) }  
+  meet { shell("rvm use #{var(:default_ruby)} --default") }
 end
 
 dep 'default ruby' do
