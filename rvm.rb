@@ -7,8 +7,9 @@ dep 'rvm system-wide' do
   requires 'rvm requirements'
   requires 'rvm current user group'
   requires 'rvm user group'
+  requires 'curl.managed'
   met? { File.exist?("/usr/local/bin/rvm") }
-  meet { shell "bash < <( curl -L http://bit.ly/rvm-install-system-wide )" }
+  meet { sudo("bash < <( curl -L http://bit.ly/rvm-install-system-wide )") }
 end
 
 dep 'rvm current user group' do
