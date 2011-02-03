@@ -79,7 +79,7 @@ end
 
 dep 'rvmd passenger gem' do
   before { var(:passenger_ruby, :default => "ree") }
-  met? { shell("rvm use #{var(:passenger_ruby)} && gem list").include?("passenger") }
+  met? { !Babushka::GemHelper.gem_path_for("passenger").nil? }
   meet { 
     var(:install_passenger_version, :default=>"3.0.2")
     shell("rvm use #{var(:passenger_ruby)} && gem install passenger --version=#{var(:install_passenger_version)}") 
