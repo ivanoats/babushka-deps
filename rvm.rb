@@ -70,12 +70,12 @@ dep 'rvmd passenger install' do
 end
 
 dep 'rvmd passenger gem' do
-  before { 
-    var(:passenger_ruby, :default => "ree") 
-    var(:install_passenger_version, :default=>"3.0.2")
-  }
+  before { var(:passenger_ruby, :default => "ree") }
   met? { shell("rvm use #{var(:passenger_ruby)} && gem list").include?("passenger") }
-  meet { shell("rvm use #{var(:passenger_ruby)} && gem install passenger --version=#{var(:install_passenger_version)}") }  
+  meet { 
+    var(:install_passenger_version, :default=>"3.0.2")
+    shell("rvm use #{var(:passenger_ruby)} && gem install passenger --version=#{var(:install_passenger_version)}") 
+  }  
 end
 
 dep 'rvmd passenger module' do
@@ -87,9 +87,12 @@ end
 dep 'rvmd passenger config' do
   requires 'rvmd passenger module'
   met? { !shell("grep passenger /etc/apache2/apache2.conf").nil? }
-  meet { 
-    @passenger_ruby = var(:passenger_ruby)
-    @passenger_version = var(:passenger_version)
-    render_erb "rvm/module_conf.erb", :to => "/etc/apache2/apache2.conf", :sudo => true
-    }
+  meet {     
+    str = [
+      "LoadModule passenger_module /usr/local/rvm/gems/#{var(:passenger_ruby)}/gems/passenger-#{var(:install_passenger_version)}/ext/apache2/mod_passenger.so",
+      "PassengerRoot /usr/local/rvm/gems/#{var(:passenger_ruby)}/gems/passenger-#{var(:install_passenger_version)}",
+      "PassengerRuby /usr/local/rvm/wrappers/#{var(:passenger_ruby)}/ruby"
+      ]    
+    append_to_file str.join("\n "), "/etc/apache2/apache2.conf", :sudo => true
+  }
 end
