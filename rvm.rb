@@ -89,7 +89,7 @@ end
 dep 'rvmd passenger module' do
   before{
     set( :installed_passenger_version, Babushka::GemHelper.send(:versions_of, "passenger").to_s  )
-    set( :passenger_path, Babushka::GemHelper.gem_path_for "passenger")
+    set( :passenger_path, Babushka::GemHelper.gem_path_for("passenger"))
   }
   requires 'apache2-prefork-dev.managed', 'libapr1-dev.managed', 'libaprutil1-dev.managed'
   met? { File.exists?("#{var(:passenger_path)}/ext/apache2/mod_passenger.so") }
