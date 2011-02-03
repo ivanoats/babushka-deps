@@ -80,7 +80,7 @@ end
 
 dep 'rvmd passenger module' do
   requires 'apache2-prefork-dev.managed', 'libapr1-dev.managed', 'libaprutil1-dev.managed'
-  met? { !shell("grep passenger /etc/apache2/apache2.conf").nil? }
+  met? { File.exists?("/usr/local/rvm/gems/#{var(:passenger_ruby)}/gems/passenger-#{var(:install_passenger_version)}/ext/apache2/mod_passenger.so") }
   meet { shell("passenger-install-apache2-module -a") }
 end
 
