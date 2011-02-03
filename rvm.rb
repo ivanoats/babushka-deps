@@ -79,7 +79,7 @@ dep 'rvmd passenger gem' do
 end
 
 dep 'rvmd passenger module' do
-  requires 'apache2-prefork-dev', 'libapr1-dev', 'libaprutil1-dev'
+  requires 'apache2-prefork-dev.managed', 'libapr1-dev.managed', 'libaprutil1-dev.managed'
   met? { !shell("grep passenger /etc/apache2/apache2.conf").nil? }
   meet { shell("passenger-install-apache2-module -a") }
 end
