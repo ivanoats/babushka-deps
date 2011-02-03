@@ -66,7 +66,7 @@ end
 
 dep 'rvmd passenger install' do
   requires 'rvmd passenger gem'
-  # requires 'rvmd passenger module'
+  requires 'rvmd passenger config'
 end
 
 dep 'rvmd passenger gem' do
@@ -79,6 +79,13 @@ dep 'rvmd passenger gem' do
 end
 
 dep 'rvmd passenger module' do
+  requires 'apache2-prefork-dev', 'libapr1-dev', 'libaprutil1-dev'
+  met? { !shell("grep passenger /etc/apache2/apache2.conf").nil? }
+  meet { shell("passenger-install-apache2-module -a") }
+end
+
+dep 'rvmd passenger config' do
+  requires 'rvmd passenger module'
   met? { !shell("grep passenger /etc/apache2/apache2.conf").nil? }
   meet { render_erb "rvm/module_conf.erb", :to => "/etc/apache2/apache2.conf", :sudo => true}
 end

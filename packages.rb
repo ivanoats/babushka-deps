@@ -151,3 +151,15 @@ dep 'xulrunner.managed' do
   installs { via :apt, "xulrunner-dev"}
   provides []
 end
+
+dep 'apache2-prefork-dev' do
+  installs { via :apt, "apache2-prefork-dev"}
+end
+
+dep 'libapr1-dev' do
+  installs { via :apt, "libapr1-dev"}
+end
+
+dep 'libaprutil1-dev' do
+  installs { via :apt, "libaprutil1-dev"}
+end
