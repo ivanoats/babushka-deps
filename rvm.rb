@@ -87,5 +87,9 @@ end
 dep 'rvmd passenger config' do
   requires 'rvmd passenger module'
   met? { !shell("grep passenger /etc/apache2/apache2.conf").nil? }
-  meet { render_erb "rvm/module_conf.erb", :to => "/etc/apache2/apache2.conf", :sudo => true}
+  meet { 
+    @passenger_ruby = var(:passenger_ruby)
+    @passenger_version = var(:passenger_version)
+    render_erb "rvm/module_conf.erb", :to => "/etc/apache2/apache2.conf", :sudo => true
+    }
 end
