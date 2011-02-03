@@ -1,7 +1,15 @@
 meta :system_rvm do
-  def system_rvm args
-    shell "/usr/local/lib/rvm/bin/rvm #{args}", :log => args['install']
-  end
+  accepts_list_for :source
+  accepts_list_for :extra_source
+  template {
+    helper(:nginx_bin) { var(:nginx_prefix) / 'sbin/nginx' }
+    helper(:nginx_conf) { var(:nginx_prefix) / 'conf/nginx.conf' }
+    helper(:nginx_cert_path) { var(:nginx_prefix) / 'conf/certs' }
+    helper(:nginx_conf_for) {|domain,ext| var(:nginx_prefix) / "conf/vhosts/#{domain}.#{ext}" }
+    helper(:nginx_conf_link_for) {|domain| var(:nginx_prefix) / "conf/vhosts/on/#{domain}.conf" }
+
+    helper(:passenger_root) { Babushka::GemHelper.gem_path_for('passenger') }
+  }
 end
 
 # set up the system libraries
@@ -79,19 +87,23 @@ dep 'rvmd passenger gem' do
 end
 
 dep 'rvmd passenger module' do
+  before{
+    set( :installed_passenger_version, Babushka::GemHelper.send(:versions_of, "passenger").to_s  )
+    set( :passenger_path, Babushka::GemHelper.gem_path_for "passenger")
+  }
   requires 'apache2-prefork-dev.managed', 'libapr1-dev.managed', 'libaprutil1-dev.managed'
-  met? { File.exists?("/usr/local/rvm/gems/#{var(:passenger_ruby)}/gems/passenger-#{var(:install_passenger_version)}/ext/apache2/mod_passenger.so") }
+  met? { File.exists?("#{var(:passenger_path)}/ext/apache2/mod_passenger.so") }
   meet { shell("passenger-install-apache2-module -a") }
 end
 
 dep 'rvmd passenger config' do
   requires 'rvmd passenger module'
   met? { !shell("grep passenger /etc/apache2/apache2.conf").nil? }
-  meet {     
+  meet {   
     str = [
-      "LoadModule passenger_module /usr/local/rvm/gems/#{var(:passenger_ruby)}/gems/passenger-#{var(:install_passenger_version)}/ext/apache2/mod_passenger.so",
-      "PassengerRoot /usr/local/rvm/gems/#{var(:passenger_ruby)}/gems/passenger-#{var(:install_passenger_version)}",
-      "PassengerRuby /usr/local/rvm/wrappers/#{var(:passenger_ruby)}/ruby"
+      "LoadModule passenger_module #{var(:passenger_path)}/ext/apache2/mod_passenger.so",
+      "PassengerRoot #{var(:passenger_path)}",
+      "PassengerRuby #{ Babushka::GemHelper.ruby_wrapper_path }"
       ]    
     append_to_file str.join("\n "), "/etc/apache2/apache2.conf", :sudo => true
   }
