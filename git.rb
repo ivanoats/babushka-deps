@@ -35,3 +35,16 @@ dep 'passenger deploy repo exists' do
     end
   }
 end
+
+dep 'gc all dirs in a folder' do
+  met? { !@completed.nil? }
+  meet {
+    var(:dev_dir, :default=>"/Users/tissak/Development")
+    Dir["#{var(:dev_dir)}/*"].each do |entry|
+      if File.directory?(entry) && File.directory?("#{entry}/.git")
+        log_shell "Actioning: #{entry}","cd #{entry} && git gc"
+      end
+    end
+    @completed = true
+  }
+end
