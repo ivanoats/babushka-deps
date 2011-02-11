@@ -1,18 +1,3 @@
-  def set_log_path
-    var(:base_path, :default=>"/var/vhosts")
-    if File.exist?("#{var(:base_path)}/#{var(:rails_app_name)}/shared")
-      set(:rails_app_path, "#{var(:rails_app_name)}/shared/log")
-    else
-      set(:rails_app_path, "#{var(:base_path)}/#{var(:rails_app_name)}/log")
-    end
-  end
-
-  def create_logrotate
-    set_log_path
-    render_erb "rails/logrotate.erb", :to => var(:logrotate_file_path), :sudo => true
-  end
-  
-  
 dep 'migrated db' do
   requires 'deployed app', 'existing db', 'db gem'
   setup {
@@ -43,10 +28,28 @@ dep 'migrated db' do
   meet { bundle_rake "db:migrate --trace" }
 end
 
+def check_log_path
+  set(:logrotate_file_path, "/etc/logrotate.d/#{var(:rails_app_name)}")
+  File.exist?(var(:logrotate_file_path))
+end
+
+def set_log_path  
+  var(:base_path, :default=>"/var/vhosts")
+  if File.exist?("#{var(:base_path)}/#{var(:rails_app_name)}/shared")
+    set(:rails_app_path, "#{var(:rails_app_name)}/shared/log")
+  else
+    set(:rails_app_path, "#{var(:base_path)}/#{var(:rails_app_name)}/log")
+  end
+end
+
+def create_logrotate
+  set_log_path
+  render_erb "rails/logrotate.erb", :to => var(:logrotate_file_path), :sudo => true
+end
+
 
 dep 'add rails logrotate' do
-  setup { set(:logrotate_file_path, "/etc/logrotate.d/#{var(:rails_app_name)}") }
-  met? { File.exist?(var(:logrotate_file_path)) }
+  met? { check_log_path }
   meet { create_logrotate }
 end
 
@@ -57,7 +60,10 @@ dep 'verify rails logrotate for all' do
       if File.directory?(entry)
         parts = entry.split("/")
         set(:rails_app_name, parts.last)
-        create_logrotate
+        unless check_log_path
+          # no file currently exists so create one
+          create_logrotate
+        end
       end
     end
     @completed = true
