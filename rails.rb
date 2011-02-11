@@ -27,3 +27,17 @@ dep 'migrated db' do
   }
   meet { bundle_rake "db:migrate --trace" }
 end
+
+
+dep 'add rails logrotate' do
+  setup { set(:logrotate_file_path, "/etc/logrotate.d/#{var(:rails_app_name)}") }
+  met? { File.exist?(logrotate_file_path) }
+  meet { 
+    if File.exist?("/var/vhosts/#{var(:rails_app_name)}/shared"))
+      set(:rails_app_path, "/var/vhosts/#{var(:rails_app_name)}/shared/log")
+    else
+      set(:rails_app_path, "/var/vhosts/#{var(:rails_app_name)}/log")
+    end
+    render_erb "rails/logrotate.erb", :to => var(:logrotate_file_path), :sudo => true
+  }
+end

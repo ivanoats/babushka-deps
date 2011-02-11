@@ -1,0 +1,10 @@
+# Rotate Rails application logs
+<%=var(:rails_app_path)%>/*.log {
+  daily
+  missingok
+  rotate 7
+  compress
+  delaycompress
+  notifempty
+  copytruncate
+}
