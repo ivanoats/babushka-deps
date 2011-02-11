@@ -47,6 +47,24 @@ def create_logrotate
   render_erb "rails/logrotate.erb", :to => var(:logrotate_file_path), :sudo => true
 end
 
+def process_hosts_directory
+  Dir["#{var(:base_path)}/*"].each do |entry|
+    if File.directory?(entry)
+      cap_rails = "#{var(:base_path)}/#{var(:rails_app_name)}/shared/log"
+      non_cap_rails = "#{var(:base_path)}/#{var(:rails_app_name)}/log"
+      if File.exist?(cap_rails) || File.exist?(non_cap_rails)
+        parts = entry.split("/")
+        set(:rails_app_name, parts.last)
+        unless check_log_path
+          # no file currently exists so create one
+          create_logrotate
+        end
+      else
+        log_shell "Skipping non-rails app: #{entry}"
+      end
+    end
+  end    
+end
 
 dep 'add rails logrotate' do
   met? { check_log_path }
@@ -55,23 +73,5 @@ end
 
 dep 'verify rails logrotate for all' do
   met? { !@completed.nil? }
-  meet { 
-    Dir["/var/vhosts/*"].each do |entry|
-      if File.directory?(entry)
-        cap_rails = "#{var(:base_path)}/#{var(:rails_app_name)}/shared/log"
-        non_cap_rails = "#{var(:base_path)}/#{var(:rails_app_name)}/log"
-        if File.exist?(cap_rails) || File.exist?(non_cap_rails)
-          parts = entry.split("/")
-          set(:rails_app_name, parts.last)
-          unless check_log_path
-            # no file currently exists so create one
-            create_logrotate
-          end
-        else
-          log_shell "Skipping non-rails app: #{entry}"
-        end
-      end
-    end
-    @completed = true
-  }
+  meet { process_hosts_directory; @completed = true }
 end
