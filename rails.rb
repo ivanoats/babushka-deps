@@ -58,11 +58,17 @@ dep 'verify rails logrotate for all' do
   meet { 
     Dir["/var/vhosts/*"].each do |entry|
       if File.directory?(entry)
-        parts = entry.split("/")
-        set(:rails_app_name, parts.last)
-        unless check_log_path
-          # no file currently exists so create one
-          create_logrotate
+        cap_rails = "#{var(:base_path)}/#{var(:rails_app_name)}/shared/log"
+        non_cap_rails = "#{var(:base_path)}/#{var(:rails_app_name)}/log"
+        if File.exist?(cap_rails) || File.exist?(non_cap_rails)
+          parts = entry.split("/")
+          set(:rails_app_name, parts.last)
+          unless check_log_path
+            # no file currently exists so create one
+            create_logrotate
+          end
+        else
+          log_shell "Skipping non-rails app: #{entry}"
         end
       end
     end
