@@ -36,7 +36,7 @@ end
 def set_log_path  
   var(:base_path, :default=>"/var/vhosts")
   if File.exist?("#{var(:base_path)}/#{var(:rails_app_name)}/shared")
-    set(:rails_app_path, "#{var(:rails_app_name)}/shared/log")
+    set(:rails_app_path, "#{var(:base_path)}/#{var(:rails_app_name)}/shared/log")
   else
     set(:rails_app_path, "#{var(:base_path)}/#{var(:rails_app_name)}/log")
   end
