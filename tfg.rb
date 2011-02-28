@@ -31,6 +31,6 @@ dep 'tfg vhost bundle install' do
     Dir["/var/vhosts/*"].each do |dir|      
       log_shell("Bundling #{dir}...","cd #{dir}; bash .rvmrc; bundle install")
     end
-    @actioned true
+    @actioned = true
   }
 end
