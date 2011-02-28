@@ -14,3 +14,22 @@ dep 'hosts path' do
     sudo("chown www-data /var/vhosts")
   }
 end
+
+dep 'tfg ruby update' do
+  before { 
+    var(:alias) 
+    var(:passenger_ruby)
+    set(:ruby_version, var(:passenger_ruby)) 
+  }
+  requires 'rvm alias update'
+  requires 'rvmd passenger install'
+end
+
+dep 'tfg vhost bundle install' do
+  met? { @actioned = false}
+  meet { 
+    Dir["/var/vhosts/*"].each do |dir|      
+      shell("cd #{dir}; bash .rvmrc; bundle install")
+    end
+  }
+end
