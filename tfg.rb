@@ -23,13 +23,20 @@ dep 'tfg ruby update' do
   }
   requires 'rvm alias update'
   requires 'rvmd passenger install'
+  requires 'tfg vhost bundle install'
 end
 
 dep 'tfg vhost bundle install' do
-  met? { @actioned = false}
+  setup { @actioned = false }
+  met? { @actioned }
   meet { 
     Dir["/var/vhosts/*"].each do |dir|      
-      log_shell("Bundling #{dir}...","cd #{dir}/current; bash .rvmrc; bundle install")
+      target_dir = File.exist?(File.join(dir, "current")) ? File.join(dir, "current") : dir
+      if(File.exist?(File.join(target_dir, "Gemfile")))        
+        log_shell("Bundling #{dir}...","cd #{target_dir}; bash .rvmrc; bundle install")
+      else
+        log("Skipping non bundler app #{dir}")
+      end
     end
     @actioned = true
   }
