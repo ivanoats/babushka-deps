@@ -97,7 +97,7 @@ dep 'rvm alias set' do
     var(:alias) 
     var(:ruby_version) 
   }
-  met? { shell("rvm alias list").include?(var(:alias)) }
+  met? { shell("rvm alias list").include?("#{var(:alias)} ") }
   meet { shell "rvm alias create #{var(:alias)} #{var(:ruby_version)}" }
 end
 
@@ -113,6 +113,7 @@ dep 'rvm alias update' do
 end
 
 dep "rvm alias remove" do
-  met? { shell("rvm alias list").include?(" #{var(:remove_alias)} ")}
+  setup { log("\nCurrent Aliases:\n\n"); log(shell("rvm alias list")); ;log("\n\n") }
+  met? { !shell("rvm alias list").include?("#{var(:remove_alias)} ")}
   meet { shell("rvm alias delete #{var(:remove_alias)}") }
 end
