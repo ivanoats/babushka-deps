@@ -29,7 +29,7 @@ dep 'tfg vhost bundle install' do
   met? { @actioned = false}
   meet { 
     Dir["/var/vhosts/*"].each do |dir|      
-      log_shell("Bundling #{dir}...","cd #{dir}; bash .rvmrc; bundle install")
+      log_shell("Bundling #{dir}...","cd #{dir}/current; bash .rvmrc; bundle install")
     end
     @actioned = true
   }
