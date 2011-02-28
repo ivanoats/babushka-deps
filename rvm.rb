@@ -91,7 +91,7 @@ dep 'rvmd passenger config' do
   }
 end
 
-
+# make sure an alias is set. WARNING - doesn't check what is set
 dep 'rvm alias set' do
   before {
     var(:alias) 
@@ -101,19 +101,15 @@ dep 'rvm alias set' do
   meet { shell "rvm alias create #{var(:alias)} #{var(:ruby_version)}" }
 end
 
-
+# clear out any existing alias and update to new ruby
 dep 'rvm alias update' do
-  before {
-    var(:alias) 
-    var(:ruby_version) 
-    @done=false
-  }
-  met? { @done }
-  meet { shell("rvm alias create #{var(:alias)} #{var(:ruby_version)}"); @done=true }
+  setup { var(:alias); var(:ruby_version) }
+  requires "rvm alias remove", 'rvm alias set'
 end
 
+# remove any existing alias.
 dep "rvm alias remove" do
   setup { log("\nCurrent Aliases:\n\n"); log(shell("rvm alias list")); ;log("\n\n") }
-  met? { !shell("rvm alias list").include?("#{var(:remove_alias)} ")}
-  meet { shell("rvm alias delete #{var(:remove_alias)}") }
+  met? { !shell("rvm alias list").include?("#{var(:alias)} ")}
+  meet { shell("rvm alias delete #{var(:alias)}") }
 end
