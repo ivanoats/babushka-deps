@@ -96,7 +96,7 @@ end
 
 # make sure an alias is set. WARNING - doesn't check what is set
 dep 'rvm alias set' do
-  setup { var(:alias); var(:ruby_version) }
+  setup { log("\nCurrent Rubies:\n\n"); log(shell("rvm alias list")); ;log("\n\n") ; var(:alias); var(:ruby_version) }  
   met? { shell("rvm alias list").include?("#{var(:alias)} ") }
   meet { shell "rvm alias create #{var(:alias)} #{var(:ruby_version)}" }
 end
