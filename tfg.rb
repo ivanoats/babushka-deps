@@ -23,11 +23,11 @@ dep 'tfg ruby update' do
   }
   requires 'rvm alias update'
   requires 'rvmd passenger install'
+  requires 'bundler.gem'
   requires 'tfg vhost bundle install'
 end
 
 dep 'tfg vhost bundle install' do
-  requires 'bundler.gem'
   setup { @actioned = false }
   met? { @actioned }
   meet { 
