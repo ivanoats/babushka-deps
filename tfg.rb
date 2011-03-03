@@ -27,6 +27,7 @@ dep 'tfg ruby update' do
 end
 
 dep 'tfg vhost bundle install' do
+  requires 'bundler.gem'
   setup { @actioned = false }
   met? { @actioned }
   meet { 
