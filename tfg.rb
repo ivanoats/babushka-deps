@@ -18,8 +18,8 @@ end
 dep 'tfg ruby update' do
   before { 
     var(:alias) 
-    var(:passenger_ruby)
-    set(:ruby_version, var(:passenger_ruby)) 
+    var(:ruby_version)
+    sudo("mv /etc/apache2/other/passenger.conf /etc/apache2/other/passenger.conf.#{Time.now.to_i}")
   }
   requires 'rvm alias update'
   requires 'rvmd passenger install'

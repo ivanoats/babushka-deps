@@ -60,17 +60,20 @@ dep 'rvmd passenger install' do
 end
 
 dep 'rvmd passenger gem' do
-  before { 
-    var(:passenger_ruby, :default => "ree") 
-    var(:install_passenger_version, :default=>"3.0.2")
+  setup { 
+    shell("rvm use #{var(:ruby_version)}@global")
+    var(:ruby_version, :default => "ree") 
+    log("Currently installed #{Babushka::GemHelper.with_ruby(var(:ruby_version)).installed_versions("passenger")}")
+    var(:passenger_version)
     }
-  met? { shell("rvm #{var(:passenger_ruby)} gem list").include?("passenger") }
-  meet { shell("rvm #{var(:passenger_ruby)} gem install passenger --version=#{var(:install_passenger_version)}") }  
+  met? { Babushka::GemHelper.with_ruby(var(:ruby_version)).has?("passenger", :version => var(:passenger_version)) }
+  meet { Babushka::GemHelper.with_ruby(var(:ruby_version)).install("passenger", var(:passenger_version)) }  
 end
 
 dep 'rvmd passenger module' do
-  before{
-    set( :installed_passenger_version, Babushka::GemHelper.send(:versions_of, "passenger").to_s  )
+  setup{
+    shell("rvm use #{var(:ruby_version)}@global")
+    set( :passenger_version, Babushka::GemHelper.send(:versions_of, "passenger").to_s  )
     set( :passenger_path, Babushka::GemHelper.gem_path_for("passenger"))
   }
   requires 'apache2-prefork-dev.managed', 'libapr1-dev.managed', 'libaprutil1-dev.managed'
@@ -80,7 +83,7 @@ end
 
 dep 'rvmd passenger config' do
   requires 'rvmd passenger module'
-  met? { !shell("grep passenger /etc/apache2/other/passenger.conf").nil? }
+  met? { File.exist?("/etc/apache2/other/passenger.conf") }
   meet {   
     str = [
       "LoadModule passenger_module #{var(:passenger_path)}/ext/apache2/mod_passenger.so",
@@ -93,10 +96,7 @@ end
 
 # make sure an alias is set. WARNING - doesn't check what is set
 dep 'rvm alias set' do
-  before {
-    var(:alias) 
-    var(:ruby_version) 
-  }
+  setup { var(:alias); var(:ruby_version) }
   met? { shell("rvm alias list").include?("#{var(:alias)} ") }
   meet { shell "rvm alias create #{var(:alias)} #{var(:ruby_version)}" }
 end
