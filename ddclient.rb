@@ -1,1 +1,3 @@
-dep 'ddclient.managed'
+dep 'ddclient.managed' do
+  installs { via :apt, 'ddclient' }
+end
