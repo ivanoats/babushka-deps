@@ -1,1 +1,3 @@
-dep 'openssh-server.managed'
+dep 'openssh-server.managed' do
+    provides 'sshd'
+end
