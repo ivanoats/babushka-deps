@@ -1,3 +1,4 @@
 dep 'openssh-server.managed' do
-    provides 'sshd'
+  installs { via :apt, 'openssh-server' }
+  provides 'sshd'
 end
