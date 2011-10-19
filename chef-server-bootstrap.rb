@@ -79,7 +79,7 @@ dep('rubygems with no docs') {
 
 dep('chef install dependencies.managed') {
   installs %w[irb build-essential wget ssl-cert]
-  provides %w[wget make irb gcc]
+  provides %w[wget make gcc]
 }
 
 dep('gems.chef') {
