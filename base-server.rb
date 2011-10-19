@@ -1,4 +1,5 @@
 dep 'base server' do
-    requires 'openssh-server'
+    requires 'openssh-server.managed'
     requires 'ddclient'
+    requires 'byobu'
 end
