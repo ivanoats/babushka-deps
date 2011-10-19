@@ -1,0 +1,1 @@
+dep 'ddclient.managed'
