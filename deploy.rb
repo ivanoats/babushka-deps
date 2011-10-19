@@ -97,7 +97,7 @@ dep 'HEAD up to date.repo', :old_id, :new_id, :branch do
   }
 end
 
-dep '☕' do
+dep 'brew coffeescript' do
   def to_brew
     Dir.glob("app/coffeescripts/**/*.coffee").reject {|coffee|
       js = coffee.sub(/^app\/coffeescripts\//, 'public/javascripts/').sub(/\.coffee$/, '.js')
