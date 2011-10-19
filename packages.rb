@@ -34,7 +34,6 @@ dep 'image_science.gem' do
   requires 'freeimage.managed'
   provides []
 end
-dep 'iotop.managed'
 dep 'java.managed' do
   installs { via :apt, 'sun-java6-jre' }
   after { shell "set -Ux JAVA_HOME /usr/lib/jvm/java-6-sun" }
@@ -109,7 +108,6 @@ dep 'sshd.managed' do
     via :apt, 'openssh-server'
   }
 end
-dep 'tmux.managed'
 dep 'tree.managed'
 dep 'vim.managed'
 dep 'wget.managed'
@@ -127,3 +125,5 @@ dep 'zlib headers.managed' do
   }
   provides []
 end
+dep 'screen.managed'
+dep 'iotop.managed' 

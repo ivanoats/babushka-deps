@@ -17,11 +17,27 @@ dep 'hostname', :for => :linux do
   }
 end
 
+dep 'system' do
+  requires 'hostname', 'tmp cleaning grace period', 'core software'
+end
+
+dep 'secured system' do
+  requires 'secured ssh logins', 'lax host key checking', 'admins can sudo'#, 'set.locale'
+  setup {
+    unmeetable "This dep has to be run as root." unless shell('whoami') == 'root'
+  }
+end
+
+dep 'tmp cleaning grace period', :for => :ubuntu do
+  met? { !grep(/^[^#]*TMPTIME=0/, "/etc/default/rcS") }
+  meet { change_line "TMPTIME=0", "TMPTIME=30", "/etc/default/rcS" }
+end
+
 dep 'secured ssh logins' do
-  requires 'sshd.managed', 'sed.managed'
+  requires ['sshd.managed'] #, 'passwordless ssh logins']
   met? {
     # -o NumberOfPasswordPrompts=0
-    output = raw_shell('ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no nonexistentuser@localhost').stderr
+    output = failable_shell('ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no nonexistentuser@localhost').stderr
     if output.downcase['connection refused']
       log_ok "sshd doesn't seem to be running."
     elsif (auth_methods = output.scan(/Permission denied \((.*)\)\./).join.split(/[^a-z]+/)).empty?
