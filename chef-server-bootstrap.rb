@@ -43,7 +43,7 @@ meta :chef do
 end
 
 dep('bootstrap chef server with rubygems') {
-  define_var(:chef_version, :defailt => "0.10.0", :message => "What version of Chef do you want to install?")
+  define_var(:chef_version, :default => "0.10.0", :message => "What version of Chef do you want to install?")
 
   requires [
     'hostname',
