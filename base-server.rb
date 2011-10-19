@@ -1,5 +1,6 @@
 dep 'base server' do
     requires 'openssh-server.managed'
     requires 'ddclient.managed'
-    requires 'byobu'
+    requires 'byobu.managed'
+    dep 'vim-common.managed'
 end
