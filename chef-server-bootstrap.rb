@@ -48,6 +48,7 @@ dep('bootstrap chef server with rubygems') {
   requires [
     'hostname',
     'ruby',
+    'ruby1.8-dev.managed',
     'chef install dependencies.managed',
     'rubygems',
     'rubygems with no docs',
