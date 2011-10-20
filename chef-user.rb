@@ -29,7 +29,7 @@ dep 'passwordless ssh logins' do
     sudo "mkdir -p '#{ssh_dir}'"
     shell("touch '#{ssh_dir / 'authorized_keys'}'")
     log "HERE!"
-    sudo "grep '#{var(:your_ssh_public_key)}' '#{ssh_dir / 'authorized_keys'}'"
+    sudo "fgrep '#{var(:your_ssh_public_key)}' '#{ssh_dir / 'authorized_keys'}'"
   }
   before {
     sudo "mkdir -p '#{ssh_dir}'"
@@ -49,7 +49,6 @@ dep 'public key' do
     "/home/#{var(:username, :default => 'deploy')}/.ssh"
   end
   met? {
-   log ssh_dir
    shell("grep ^ssh-rsa #{ssh_dir}/id_rsa.pub")
   }
   meet {
