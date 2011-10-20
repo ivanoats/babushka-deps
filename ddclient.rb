@@ -15,5 +15,5 @@ dep 'ddclient.managed' do
   password='#{var :password}'
   #{var :sub_domain_name, :default => 'subdomain'}.dyndns.org"
   log conf
-  sudo "echo #{conf} > /etc/ddclient.conf"
+  sudo "echo <<\\EOF #{conf} EOF > /etc/ddclient.conf"
 end
