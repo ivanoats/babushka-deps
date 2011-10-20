@@ -37,7 +37,7 @@ dep 'secured ssh logins' do
   requires ['sshd.managed'] #, 'passwordless ssh logins']
   met? {
     # -o NumberOfPasswordPrompts=0
-    output = failable_shell('ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no nonexistentuser@localhost').stderr
+    output = raw_shell('ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no nonexistentuser@localhost').stderr
     if output.downcase['connection refused']
       log_ok "sshd doesn't seem to be running."
     elsif (auth_methods = output.scan(/Permission denied \((.*)\)\./).join.split(/[^a-z]+/)).empty?
