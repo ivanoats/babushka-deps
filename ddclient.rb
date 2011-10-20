@@ -11,7 +11,7 @@ dep 'ddclient.managed' do
   daemon=300
   use=web, web=checkip.dyndns.com, web-skip='IP Address'
   server=members.dyndns.org
-  login=#{var :dyndns_username, default: 'ivanoats'}
-  password='#{var :dyndns_password}'
-  #{var :sub_domain_name, default: 'subdomain'}.dyndns.org"
+  login=#{var :username, :default => 'ivanoats'}
+  password='#{var :password}'
+  #{var :sub_domain_name, :default => 'subdomain'}.dyndns.org"
 end
