@@ -126,7 +126,7 @@ dep('chef bootstrap configuration.chef') {
         "server_url"=>"http://localhost:4000",
         "server_fqdn"=> hostname,
         "webui_enabled"=> web_ui_enabled?,
-        "init_style"=> var(:init_style),
+        "init_style"=> 'init',
         "client_interval"=>1800
       },
       "run_list"=>["recipe[chef::bootstrap_server]"]
