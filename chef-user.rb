@@ -46,11 +46,11 @@ end
 
 dep 'public key' do
   def ssh_dir
-    "/home/#{var(:username, :default => 'deploy')}" / '.ssh'
+    "/home/#{var(:username, :default => 'deploy')} / .ssh"
   end
   met? {
    log ssh_dir
-   log shell("grep ^ssh-rsa, #{ssh_dir}/id_rsa.pub")
+   shell("grep ^ssh-rsa, #{ssh_dir}/id_rsa.pub")
   }
   meet {
     log shell("ssh-keygen -t rsa -f #{ssh_dir}/id_rsa -N ''", :sudo => true, :as => var(:username))
