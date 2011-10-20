@@ -18,3 +18,7 @@ dep 'ruby19.src' do
     shell "cp bin/* #{prefix / 'bin'}", :sudo => Babushka::SrcHelper.should_sudo?
   }
 end
+
+dep 'ruby1.8-dev.managed' do
+  provides []
+end
