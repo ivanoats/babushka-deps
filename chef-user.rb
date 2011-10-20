@@ -46,7 +46,7 @@ end
 
 dep 'public key' do
   def ssh_dir
-    "/home/#{var(:username, :default => 'deploy')} / .ssh"
+    "/home/#{var(:username, :default => 'deploy')}/.ssh"
   end
   met? {
    log ssh_dir
