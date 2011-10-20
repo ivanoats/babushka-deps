@@ -36,6 +36,7 @@ dep 'ddclient.managed' do
   #{var :sub_domain_name, :default => 'subdomain'}.dyndns.org
 EOS
   log sudo "cat >/etc/ddclient.conf <<\\EOF #{conf}\nEOF"
-  log sudo "hostname #{var :sub_domain_name}"
-  log sudo "bash -c \"echo '#{var :sub_domain_name}' > /etc/hostname \""
+  log sudo "echo 'done writing ddclient conf'"
+  log sudo "hostname #{var :sub_domain_name}.dyndns.org"
+  log sudo "bash -c \"echo '#{var :sub_domain_name}.dyndns.org' > /etc/hostname \""
 end
