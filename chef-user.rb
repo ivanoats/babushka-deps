@@ -28,6 +28,7 @@ dep 'passwordless ssh logins' do
   met? {
     sudo "mkdir -p '#{ssh_dir}'"
     shell("touch '#{ssh_dir / 'authorized_keys'}'")
+    log "HERE!"
     sudo "grep '#{var(:your_ssh_public_key)}' '#{ssh_dir / 'authorized_keys'}'"
   }
   before {
