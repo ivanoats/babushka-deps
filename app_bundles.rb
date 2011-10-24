@@ -40,10 +40,10 @@ end
 dep 'Chromium.app' do
   requires_when_unmet "Chromium.app download cleared"
   source L{
-    "http://build.chromium.org/buildbot/snapshots/chromium-rel-mac/#{version}/chrome-mac.zip"
+    "http://build.chromium.org/f/chromium/snapshots/chromium-rel-mac/#{version}/chrome-mac.zip"
   }
   latest_version {
-    shell "curl http://build.chromium.org/buildbot/snapshots/chromium-rel-mac/LATEST"
+    shell "curl http://build.chromium.org/f/chromium/snapshots/chromium-rel-mac/LATEST"
   }
   current_version {|path|
     IO.read(path / 'Contents/Info.plist').xml_val_for('SVNRevision')

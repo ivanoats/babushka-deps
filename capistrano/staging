@@ -1,0 +1,11 @@
+$:.unshift(File.expand_path('./lib', ENV['rvm_path']))
+require "rvm/capistrano" 
+set :rvm_ruby_string, '<%= var :rvm_ruby %>'
+
+set :deploy_to, "/var/vhosts/<%= var :deploy_folder %>"
+set :rails_env, "staging"
+
+# allow swapping of a branch
+set :branch, "master"
+
+server "<%= var :deploy_server %>", :app, :web, :db, :primary => true

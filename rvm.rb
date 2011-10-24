@@ -83,16 +83,16 @@ end
 
 dep 'rvmd passenger config' do
   requires 'rvmd passenger module'
-#  met? { File.exist?("/etc/apache2/other/passenger.conf") }
-  # meet {   
-    # str = [
-      # "LoadModule passenger_module #{var(:passenger_path)}/ext/apache2/mod_passenger.so",
-      # "PassengerRoot #{var(:passenger_path)}",
-      # "PassengerRuby #{ Babushka::GemHelper.ruby_wrapper_path }"
-      # ]    
-    # append_to_file str.join("\n "), "/etc/apache2/other/passenger.conf", :sudo => true
-  # }
-# end
+  met? { File.exist?("/etc/apache2/other/passenger.conf") }
+  meet {   
+    str = [
+      "LoadModule passenger_module #{var(:passenger_path)}/ext/apache2/mod_passenger.so",
+      "PassengerRoot #{var(:passenger_path)}",
+      "PassengerRuby #{ Babushka::GemHelper.ruby_wrapper_path }"
+      ]    
+    append_to_file str.join("\n "), "/etc/apache2/other/passenger.conf", :sudo => true
+  }
+end
 
 # make sure an alias is set. WARNING - doesn't check what is set
 dep 'rvm alias set' do
