@@ -6,7 +6,7 @@ end
 
 dep 'rvm install' do
   requires 'rvm requirements', 'curl.managed'
-  met? { raw_which 'rvm', login_shell('which rvm') }
+  met? { which 'rvm', login_shell('which rvm') }
   meet {
     if confirm("Install rvm system-wide?", :default => 'n')
       log_shell "Installing rvm using rvm-install-system-wide", 'bash < <( curl -L http://bit.ly/rvm-install-system-wide )'
@@ -44,7 +44,7 @@ end
 dep 'default ruby' do
   requires 'rvm user group'  
   requires 'installed default ruby'
-  before { var(:default_ruby, :default => "ree") }
+  before { var(:default_ruby, :default => "1.9.2-p290") }
   met? { shell("rvm list").include?("=>") }
   meet { shell("rvm use #{var(:default_ruby)} --default")}
 end
