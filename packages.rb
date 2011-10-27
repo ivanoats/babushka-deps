@@ -1,4 +1,4 @@
-dep 'bison.managed'
+dep 'bison.managed', :for => :ubuntu
 dep 'bundler.gem' do
   installs 'bundler >= 1.0.13'
   provides 'bundle'
@@ -169,7 +169,7 @@ dep 'libsqlite3.managed' do
   installs { via :apt, 'libsqlite3-0', "libsqlite3-dev", "sqlite3"}
   provides []  
 end
-dep 'libxml2-dev.managed' do
+dep 'libxml2-dev.managed', :for => :ubuntu do
   installs { via :apt, 'libxml2-dev'}
   provides []  
 end

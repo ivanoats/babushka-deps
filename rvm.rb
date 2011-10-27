@@ -6,7 +6,7 @@ end
 
 dep 'rvm install' do
   requires 'rvm requirements', 'curl.managed'
-  met? { which 'rvm', login_shell('which rvm') }
+  met? { which 'rvm' }
   meet {
     if confirm("Install rvm system-wide?", :default => 'n')
       log_shell "Installing rvm using rvm-install-system-wide", 'bash < <( curl -L http://bit.ly/rvm-install-system-wide )'
