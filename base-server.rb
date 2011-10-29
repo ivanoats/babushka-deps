@@ -10,4 +10,5 @@ dep 'base server', :for => :linux  do
     requires 'byobu.managed'
     requires 'vim-nox.managed'
     requires 'chef install dependencies.managed'
+    requires 'mysql.managed'
 end
