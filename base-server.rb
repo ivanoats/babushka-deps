@@ -14,5 +14,5 @@ dep 'base server', :for => :linux  do
     requires 'chef install dependencies.managed'
     requires 'mysql.managed'
     requires 'apache2.managed'
-    #requires 'rvmd passenger install'
+    requires 'passenger3'
 end
