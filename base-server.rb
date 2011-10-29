@@ -1,4 +1,6 @@
 # builds a base server for dynamic ip and chef management for ubuntu
+# assumes you've alrady done a multi-user install of rvm and of course, babushka
+# adduser deploy first, too
 dep 'base server', :for => :linux  do
     sudo "dpkg-reconfigure debconf -f readline -p high"
     requires 'admins can sudo'
@@ -11,4 +13,5 @@ dep 'base server', :for => :linux  do
     requires 'vim-nox.managed'
     requires 'chef install dependencies.managed'
     requires 'mysql.managed'
+    requires 'apach2.managed'
 end
