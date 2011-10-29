@@ -13,5 +13,5 @@ dep 'base server', :for => :linux  do
     requires 'vim-nox.managed'
     requires 'chef install dependencies.managed'
     requires 'mysql.managed'
-    requires 'apach2.managed'
+    requires 'apache2.managed'
 end
