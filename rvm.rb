@@ -62,7 +62,7 @@ end
 dep 'rvmd passenger gem' do
   setup { 
     shell("rvm use #{var(:ruby_version)}@global")
-    var(:ruby_version, :default => "ree") 
+    var(:ruby_version, :default => "1.9.2-p290") 
     log("Currently installed #{Babushka::GemHelper.with_ruby(var(:ruby_version)).installed_versions("passenger")}")
     var(:passenger_version)
     }
