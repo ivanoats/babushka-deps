@@ -32,3 +32,7 @@ dep 'apache2 passenger mods enabled' do
   setup { set :module_name, 'passenger' }
   requires 'module enabled.apache2'
 end
+
+dep 'libcurl4-openssl-dev.managed' do
+  provides []
+end
