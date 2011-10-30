@@ -1,0 +1,71 @@
+PassengerMaxPoolSize 2
+PassengerPoolIdleTime 0
+PassengerUseGlobalQueue on
+
+<VirtualHost *:80>
+
+  ServerName <%= var(:server_name) %>
+  DocumentRoot <%= var(:document_root) / 'current/public' %>
+
+  ErrorLog <%= var(:document_root) / 'shared/log/error.log' %>
+  CustomLog <%= var(:document_root) / 'shared/log/access.log' %> common
+  
+  ProxyRequests Off
+  <Proxy *>
+    AddDefaultCharset off
+    Order deny,allow
+    Allow from all
+  </Proxy>
+
+  ProxyPass /node http://127.0.0.1:8124
+  ProxyPassReverse /node http://127.0.0.1:8124
+
+  ProxyPass /xhr http://127.0.0.1:8000
+  ProxyPassReverse /xhr http://127.0.0.1:8000
+
+  XSendFile on
+  XSendFilePath /home/protonet/dashboard/shared/user-files
+
+</VirtualHost>
+
+<VirtualHost *:443>
+
+  ServerName <%= var(:server_name) %>
+  DocumentRoot <%= var(:document_root) / 'current/public' %>
+
+  ErrorLog <%= var(:document_root) / 'shared/log/error.log' %>
+  CustomLog <%= var(:document_root) / 'shared/log/access.log' %> common
+  
+  SSLEngine on
+  SSLOptions +StrictRequire
+  SSLProtocol all -SSLv2
+  SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM
+
+  SSLCACertificateFile <%= var(:document_root) / 'shared/config/protonet.d/ca.crt' %>
+  SSLCertificateFile <%= var(:document_root) / 'shared/config/protonet.d/local.protonet.info.crt' %>
+  SSLCertificateKeyFile <%= var(:document_root) / 'shared/config/protonet.d/local.protonet.info.key' %>
+  SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+  
+  <Location /system/files>
+    Order deny,allow
+    Allow from all
+    Satisfy any
+  </Location>
+
+  ProxyRequests Off
+  <Proxy *>
+    AddDefaultCharset off
+    Order deny,allow
+    Allow from all
+  </Proxy>
+
+  ProxyPass /node http://127.0.0.1:8124
+  ProxyPassReverse /node http://127.0.0.1:8124
+
+  ProxyPass /xhr http://127.0.0.1:8000
+  ProxyPassReverse /xhr http://127.0.0.1:8000
+
+  XSendFile on
+  XSendFilePath /home/protonet/dashboard/shared/user-files
+
+</VirtualHost>
