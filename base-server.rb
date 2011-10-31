@@ -15,4 +15,7 @@ dep 'base server', :for => :linux  do
     requires 'mysql.managed'
     requires 'apache2.managed'
     requires 'passenger3'
+    # rvm pkg install ree_dependencies
+    # gem install magicmonkey
+    # js engine... gem install rubyracer?
 end
