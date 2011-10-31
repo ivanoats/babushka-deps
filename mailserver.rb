@@ -4,6 +4,6 @@ end
 
 dep 'postfix.managed' do
   installs { via :apt, "postfix" }
-  installs { via :apt, "mailx" }
+  installs { via :apt, "mailutils" }
   provides 'mail'  
 end
