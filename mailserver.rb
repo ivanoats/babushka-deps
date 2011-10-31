@@ -3,6 +3,7 @@ dep 'mail server' do
 end
 
 dep 'postfix.managed' do
-  installs { via :apt, "postfix telnet mailx" }
+  installs { via :apt, "postfix" }
+  installs { via :apt, "mailx" }
   provides 'mail'  
 end
