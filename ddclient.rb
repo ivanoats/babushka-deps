@@ -16,7 +16,7 @@
 #    
 #      Next boot of system will automatically start ddclient.
 dep 'ddclient.managed' do
-  met? { `ls /etc/ddclient.conf`}
+  met? { which "ddclient"}
   meet do
     installs do
         via :apt, 'ddclient' 
