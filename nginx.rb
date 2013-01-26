@@ -26,55 +26,72 @@ meta :nginx do
   end
 end
 
-dep 'vhost enabled.nginx', :nginx_prefix, :type, :domain, :path do
-  requires 'vhost configured.nginx'.with(nginx_prefix, type, domain, path)
+dep 'vhost enabled.nginx', :vhost_type, :domain, :domain_aliases, :path, :listen_host, :listen_port, :proxy_host, :proxy_port, :nginx_prefix, :enable_http, :enable_https, :force_https do
+  requires 'vhost configured.nginx'.with(vhost_type, domain, domain_aliases, path, listen_host, listen_port, proxy_host, proxy_port, nginx_prefix, enable_http, enable_https, force_https)
   met? { vhost_link.exists? }
-  meet { sudo "ln -sf '#{vhost_conf}' '#{vhost_link}'" }
+  meet {
+    sudo "mkdir -p #{nginx_prefix / 'conf/vhosts/on'}"
+    sudo "ln -sf '#{vhost_conf}' '#{vhost_link}'"
+  }
   after { restart_nginx }
 end
 
-dep 'vhost configured.nginx', :nginx_prefix, :type, :domain, :path do
-  define_var :www_aliases, :default => L{
-    "#{domain} #{var :extra_domains}".split(' ').compact.map(&:strip).reject {|d|
-      d.starts_with? '*.'
-    }.reject {|d|
-      d.starts_with? 'www.'
+dep 'vhost configured.nginx', :vhost_type, :domain, :domain_aliases, :path, :listen_host, :listen_port, :proxy_host, :proxy_port, :nginx_prefix, :enable_http, :enable_https, :force_https do
+  domain_aliases.default('').ask('Domains to alias (no need to specify www. aliases)')
+  listen_host.default!('[::]')
+  listen_port.default!('80')
+  proxy_host.default('localhost')
+  proxy_port.default('8000')
+  enable_http.default!('yes')
+  enable_https.default('no')
+  force_https.default('no')
+  def www_aliases
+    "#{domain} #{domain_aliases}".split(/\s+/).reject {|d|
+      d[/^\*\./] || d[/^www\./]
     }.map {|d|
       "www.#{d}"
-    }.join(' ')
-  }
+    }
+  end
+  def server_names
+    [domain].concat(
+      domain_aliases.to_s.split(/\s+/)
+    ).concat(
+      www_aliases
+    ).uniq
+  end
 
-  type.default('unicorn').choose(%w[unicorn proxy static])
+  vhost_type.default('unicorn').choose(%w[unicorn proxy static])
   path.default("~#{domain}/current".p) if shell?('id', domain)
 
   requires 'configured.nginx'.with(nginx_prefix)
-  requires 'unicorn configured'.with(path) if type == 'unicorn'
+  requires 'unicorn configured'.with(path) if vhost_type == 'unicorn'
 
   met? {
     Babushka::Renderable.new(vhost_conf).from?(dependency.load_path.parent / "nginx/vhost.conf.erb") and
-    Babushka::Renderable.new(vhost_common).from?(dependency.load_path.parent / "nginx/#{type}_vhost.common.erb")
+    Babushka::Renderable.new(vhost_common).from?(dependency.load_path.parent / "nginx/#{vhost_type}_vhost.common.erb")
   }
   meet {
+    sudo "mkdir -p #{nginx_prefix / 'conf/vhosts'}"
     render_erb "nginx/vhost.conf.erb", :to => vhost_conf, :sudo => true
-    render_erb "nginx/#{type}_vhost.common.erb", :to => vhost_common, :sudo => true
+    render_erb "nginx/#{vhost_type}_vhost.common.erb", :to => vhost_common, :sudo => true
   }
 end
 
-dep 'self signed cert.nginx', :nginx_prefix, :domain do
+dep 'self signed cert.nginx', :domain, :nginx_prefix, :country, :state, :city, :organisation, :organisational_unit, :email do
   requires 'nginx.src'.with(:nginx_prefix => nginx_prefix)
-  met? { %w[key csr crt].all? {|ext| (cert_path / "#{domain}.#{ext}").exists? } }
+  met? { %w[key crt].all? {|ext| (cert_path / "#{domain}.#{ext}").exists? } }
   meet {
     cd cert_path, :create => "700", :sudo => true do
       log_shell("generating private key", "openssl genrsa -out #{domain}.key 2048", :sudo => true) and
       log_shell("generating certificate", "openssl req -new -key #{domain}.key -out #{domain}.csr",
         :sudo => true, :input => [
-          var(:country, :default => 'AU'),
-          var(:state),
-          var(:city, :default => ''),
-          var(:organisation),
-          var(:organisational_unit, :default => ''),
-          var(:domain),
-          var(:email),
+          country.default('AU'),
+          state,
+          city.default(''),
+          organisation,
+          organisational_unit.default(''),
+          domain,
+          email,
           '', # password
           '', # optional company name
           '' # done
@@ -82,18 +99,20 @@ dep 'self signed cert.nginx', :nginx_prefix, :domain do
       ) and
       log_shell("signing certificate with key", "openssl x509 -req -days 365 -in #{domain}.csr -signkey #{domain}.key -out #{domain}.crt", :sudo => true)
     end
+    restart_nginx
   }
 end
 
 dep 'running.nginx', :nginx_prefix do
-  requires 'configured.nginx'.with(nginx_prefix), 'startup script.nginx'.with(nginx_prefix)
+  requires_when_unmet 'configured.nginx'.with(nginx_prefix)
+  requires 'startup script.nginx'.with(nginx_prefix)
   met? {
     nginx_running?.tap {|result|
       log "There is #{result ? 'something' : 'nothing'} listening on port 80."
     }
   }
   meet :on => :linux do
-    sudo '/etc/init.d/nginx start'
+    sudo 'initctl start nginx'
   end
   meet :on => :osx do
     log_error "launchctl should have already started nginx. Check /var/log/system.log for errors."
@@ -103,11 +122,11 @@ end
 dep 'startup script.nginx', :nginx_prefix do
   requires 'nginx.src'.with(:nginx_prefix => nginx_prefix)
   on :linux do
-    requires 'rcconf.managed'
-    met? { shell("rcconf --list").val_for('nginx') == 'on' }
+    met? {
+      raw_shell('initctl list | grep nginx').stdout[/^nginx\b/]
+    }
     meet {
-      render_erb 'nginx/nginx.init.d.erb', :to => '/etc/init.d/nginx', :perms => '755', :sudo => true
-      sudo 'update-rc.d nginx defaults'
+      render_erb 'nginx/nginx.init.conf.erb', :to => '/etc/init/nginx.conf'
     }
   end
   on :osx do
@@ -120,6 +139,7 @@ dep 'startup script.nginx', :nginx_prefix do
 end
 
 dep 'configured.nginx', :nginx_prefix do
+  nginx_prefix.default!('/opt/nginx') # This is required because nginx.src might be cached.
   requires 'nginx.src'.with(:nginx_prefix => nginx_prefix), 'www user and group', 'nginx.logrotate'
   met? {
     Babushka::Renderable.new(nginx_conf).from?(dependency.load_path.parent / "nginx/nginx.conf.erb")
@@ -127,20 +147,32 @@ dep 'configured.nginx', :nginx_prefix do
   meet {
     render_erb 'nginx/nginx.conf.erb', :to => nginx_conf, :sudo => true
   }
-  after {
-    sudo "mkdir -p #{nginx_prefix / 'conf/vhosts/on'}"
-  }
 end
 
 dep 'nginx.src', :nginx_prefix, :version, :upload_module_version do
   nginx_prefix.default!("/opt/nginx")
-  version.default!('1.0.8')
-  upload_module_version.default!('2.2.0')
+  version.default!('1.2.4')
+  upload_module_version.default!('2.2')
+
   requires 'pcre.managed', 'libssl headers.managed', 'zlib headers.managed'
+  on :linux do 
+    requires "unzip.managed"
+  end
+
   source "http://nginx.org/download/nginx-#{version}.tar.gz"
-  extra_source "http://www.grid.net.ru/nginx/download/nginx_upload_module-#{upload_module_version}.tar.gz"
-  configure_args "--with-ipv6", "--with-pcre", "--with-http_ssl_module",
-    "--add-module='../../nginx_upload_module-#{upload_module_version}/nginx_upload_module-#{upload_module_version}'"
+  extra_source "https://github.com/vkholodkov/nginx-upload-module/archive/#{upload_module_version}.zip"
+
+  configure_args L{
+    [
+      "--with-ipv6",
+      "--with-pcre",
+      "--with-http_ssl_module",
+      "--with-http_gzip_static_module",
+      "--add-module='../../#{upload_module_version}/nginx-upload-module-#{upload_module_version}'",
+      "--with-ld-opt='#{shell('pcre-config --libs')}'"
+    ].join(' ')
+  }
+
   prefix nginx_prefix
   provides nginx_prefix / 'sbin/nginx'
 
@@ -150,22 +182,21 @@ dep 'nginx.src', :nginx_prefix, :version, :upload_module_version do
 
   met? {
     if !File.executable?(nginx_prefix / 'sbin/nginx')
-      unmet "nginx isn't installed"
+      log "nginx isn't installed"
     else
       installed_version = shell(nginx_prefix / 'sbin/nginx -v') {|shell| shell.stderr }.val_for(/(nginx: )?nginx version:/).sub('nginx/', '')
-      if installed_version != version
-        unmet "an outdated version of nginx is installed (#{installed_version})"
-      else
-        met "nginx-#{installed_version} is installed"
-      end
+      (installed_version.to_version >= version.to_s).tap {|result|
+        log "nginx-#{installed_version} is installed"
+      }
     end
   }
 end
 
 dep 'http basic logins.nginx', :nginx_prefix, :domain, :username, :pass do
+  nginx_prefix.default!('/opt/nginx')
   requires 'http basic auth enabled.nginx'.with(nginx_prefix, domain)
   met? { shell("curl -I -u #{username}:#{pass} #{domain}").val_for('HTTP/1.1')[/^[25]0\d\b/] }
-  meet { append_to_file "#{username}:#{pass.to_s.crypt(pass)}", (nginx_prefix / 'conf/htpasswd'), :sudo => true }
+  meet { (nginx_prefix / 'conf/htpasswd').append("#{username}:#{pass.to_s.crypt(pass)}") }
   after { restart_nginx }
 end
 
@@ -173,7 +204,7 @@ dep 'http basic auth enabled.nginx', :nginx_prefix, :domain do
   requires 'configured.nginx'.with(nginx_prefix)
   met? { shell("curl -I #{domain}").val_for('HTTP/1.1')[/^401\b/] }
   meet {
-    append_to_file %Q{auth_basic 'Restricted';\nauth_basic_user_file htpasswd;}, vhost_common, :sudo => true
+    vhost_common.p.append(%Q{auth_basic 'Restricted';\nauth_basic_user_file htpasswd;})
   }
   after {
     sudo "touch #{nginx_prefix / 'conf/htpasswd'}"

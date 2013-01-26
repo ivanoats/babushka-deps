@@ -1,4 +1,4 @@
-dep 'bison.managed', :for => :ubuntu
+dep 'bison.managed'
 dep 'bundler.gem' do
   installs 'bundler >= 1.0.13'
   provides 'bundle'
@@ -11,22 +11,26 @@ dep 'coreutils.managed', :for => :osx do
     end
   end
 end
+dep 'curl.lib' do
+  installs {
+    on :osx, [] # It's provided by the system.
+    otherwise 'libcurl4-openssl-dev'
+  }
+end
 dep 'erlang.managed' do
   provides 'erl', 'erlc'
 end
 dep 'freeimage.managed' do
   installs {
     via :apt, %w[libfreeimage3 libfreeimage-dev]
-    via :macports, 'freeimage'
-    via :brew, 'freeimage'
+    otherwise 'freeimage'
   }
   provides []
 end
-dep 'gettext.managed'
 dep 'git-smart.gem' do
   provides %w[git-smart-log git-smart-merge git-smart-pull]
 end
-dep 'htop.managed'
+dep 'htop.bin'
 dep 'imagemagick.managed' do
   provides %w[compare animate convert composite conjure import identify stream display montage mogrify]
 end
@@ -34,16 +38,16 @@ dep 'image_science.gem' do
   requires 'freeimage.managed'
   provides []
 end
+dep 'iotop.bin'
 dep 'java.managed' do
   installs { via :apt, 'sun-java6-jre' }
   after { shell "set -Ux JAVA_HOME /usr/lib/jvm/java-6-sun" }
 end
-dep 'jnettop.managed' do
-  installs { via :apt, 'jnettop' }
-end
+dep 'jnettop.bin'
 dep 'readline headers.managed' do
   installs {
-    via :apt, 'libreadline5-dev'
+    on :lenny, 'libreadline5-dev'
+    via :apt, 'libreadline6-dev'
   }
   provides []
 end
@@ -54,10 +58,20 @@ dep 'libssl headers.managed' do
   }
   provides []
 end
+
 dep 'libxml.managed' do
-  installs { via :apt, 'libxml2-dev' }
+  installs {
+    # The latest libxml2 on 12.04 doesn't have a corresponding libxml2-dev.
+    on :precise, [
+      'libxml2 == 2.7.8.dfsg-5.1ubuntu4',
+      'libxml2-dev == 2.7.8.dfsg-5.1ubuntu4'
+    ]
+
+    via :apt, 'libxml2-dev'
+  }
   provides []
 end
+
 dep 'libxslt.managed' do
   installs { via :apt, 'libxslt1-dev' }
   provides []
@@ -69,47 +83,55 @@ dep 'mdns.managed' do
   }
   provides []
 end
+dep 'lsof.bin'
 dep 'memcached.managed'
 dep 'ncurses.managed' do
   installs {
     via :apt, 'libncurses5-dev', 'libncursesw5-dev'
-    via :macports, 'ncurses', 'ncursesw'
+    otherwise 'ncurses'
   }
   provides []
 end
-dep 'nmap.managed'
+dep 'nmap.bin'
 dep 'oniguruma.managed'
+dep 'openssl.lib' do
+  installs {
+    via :apt, 'openssl', 'libssl-dev'
+    otherwise 'openssl'
+  }
+end
 dep 'pcre.managed' do
   installs {
-    via :brew, 'pcre'
-    via :macports, 'pcre'
     via :apt, 'libpcre3-dev'
     via :yum, 'pcre-devel'
+    otherwise 'pcre'
   }
   provides 'pcre-config'
 end
+dep 'pv.bin'
 dep 'rcconf.managed' do
   installs { via :apt, 'rcconf' }
 end
-dep 'sed.managed' do
+dep 'sed.bin' do
   installs {
     via :brew, 'gnu-sed'
-    via :macports, 'gsed'
   }
-  provides 'sed'
   after {
     cd pkg_manager.bin_path do
       shell "ln -s gsed sed", :sudo => pkg_manager.should_sudo?
     end
   }
 end
-dep 'sshd.managed' do
+dep 'sshd.bin' do
   installs {
     via :apt, 'openssh-server'
   }
 end
-dep 'tree.managed'
-dep 'vim.managed'
+dep 'tmux.bin'
+dep 'traceroute.bin'
+dep 'tree.bin'
+dep 'unzip.managed'
+dep 'vim.bin'
 dep 'wget.managed'
 dep 'yaml headers.managed' do
   installs {
@@ -123,80 +145,5 @@ dep 'zlib headers.managed' do
     via :apt, 'zlib1g-dev'
     via :yum, 'zlib-devel'
   }
-  provides []
-end
-dep 'screen.managed'
-dep 'iotop.managed' 
-dep 'apache2.managed' do
-  installs { via :apt, 'apache2' }
-  provides []
-end
-dep 'php5.managed' do
-  installs { via :apt, 'php5' }
-  provides []
-end
-
-# linux cores for rvm
-dep 'build-essential.managed' do
-  installs { via :apt, 'build-essential'}
-  provides []
-end
-dep 'bison.managed' do
-  installs { via :apt, 'bison'}
-  provides []
-end
-dep 'openssl.managed' do
-  installs { via :apt, 'openssl'}
-  provides []
-end
-dep 'libreadline5.managed' do
-  installs { via :apt, 'libreadline5'}
-  provides []
-end
-dep 'libreadline_dev.managed' do
-  installs { via :apt, 'libreadline-dev'}
-  provides []
-end
-dep 'zlib1g.managed' do
-  installs { via :apt, 'zlib1g','zlib1g-dev'}
-  provides []
-end
-dep 'libssl_dev.managed' do
-  installs { via :apt, 'libsqlite3-0'}
-  provides []  
-end
-dep 'libsqlite3.managed' do
-  installs { via :apt, 'libsqlite3-0', "libsqlite3-dev", "sqlite3"}
-  provides []  
-end
-dep 'libxml2-dev.managed', :for => :ubuntu do
-  installs { via :apt, 'libxml2-dev'}
-  provides []  
-end
-
-#mongo
-dep 'mongodb.managed' do
-  installs { via :apt, 'mongodb'}
-  provides []  
-end
-
-#xulrunner can be used to for libmozjs.so for mongo fix
-dep 'xulrunner.managed' do
-  installs { via :apt, "xulrunner-dev"}
-  provides []
-end
-
-dep 'apache2-prefork-dev.managed' do
-  installs { via :apt, "apache2-prefork-dev"}
-  provides []
-end
-
-dep 'libapr1-dev.managed' do
-  installs { via :apt, "libapr1-dev"}
-  provides []
-end
-
-dep 'libaprutil1-dev.managed' do
-  installs { via :apt, "libaprutil1-dev"}
   provides []
 end

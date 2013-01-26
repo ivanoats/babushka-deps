@@ -1,12 +1,36 @@
-dep 'dot files', :username do
+dep 'dot files', :username, :github_user, :repo do
   username.default!(shell('whoami'))
-  requires 'user exists'.with(:username => username), 'git', 'curl.managed', 'git-smart.gem'
-  met? { File.exists?(ENV['HOME'] / ".dot-files/.git") }
-  meet { shell %Q{curl -L "http://github.com/#{var :github_user, :default => 'benhoskings'}/#{var :dot_files_repo, :default => 'dot-files'}/raw/master/clone_and_link.sh" | bash} }
+  github_user.default('benhoskings')
+  repo.default('dot-files')
+  requires 'user exists'.with(:username => username), 'git', 'curl.bin', 'git-smart.gem'
+  met? {
+    "~#{username}/.dot-files/.git".p.exists?
+  }
+  meet {
+    shell %Q{curl -L "http://github.com/#{github_user}/#{repo}/raw/master/clone_and_link.sh" | bash}, :as => username
+  }
+end
+
+dep 'user setup for provisioning', :username, :key do
+  requires [
+    'user exists'.with(:username => username),
+    'passwordless ssh logins'.with(username, key),
+    'passwordless sudo'.with(username)
+  ]
+end
+
+dep 'app user setup', :user, :key, :env do
+  env.default('production')
+  requires [
+    'user setup'.with(user, key),        # Dot files, ssh keys, etc.
+    'app env vars set'.with(user, env),  # Set RACK_ENV and friends.
+    'web repo'.with("~#{user}/current") # Configure ~/current to accept deploys.
+  ]
 end
 
 dep 'user auth setup', :username, :password, :key do
-  requires 'user exists with password'.with(username, password), 'passwordless ssh logins'.with(username, key)
+  requires 'user exists with password'.with(username, password)
+  requires 'passwordless ssh logins'.with(username, key)
 end
 
 dep 'user exists with password', :username, :password do
@@ -43,7 +67,7 @@ dep 'user exists', :username, :home_dir_base do
     }
   end
   on :linux do
-    met? { grep(/^#{username}:/, '/etc/passwd') }
+    met? { '/etc/passwd'.p.grep(/^#{username}:/) }
     meet {
       sudo "mkdir -p #{home_dir_base}" and
       sudo "useradd -m -s /bin/bash -b #{home_dir_base} -G admin #{username}" and

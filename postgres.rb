@@ -1,5 +1,5 @@
 dep 'existing postgres db', :username, :db_name do
-  requires 'postgres access'.with(username)
+  requires 'postgres access'.with(:username => username)
   met? {
     !shell("psql -l") {|shell|
       shell.stdout.split("\n").grep(/^\s*#{db_name}\s+\|/)
@@ -17,9 +17,9 @@ dep 'existing data', :username, :db_name do
       if rows && rows.to_i > 0
         log "There are already #{rows} tables."
       else
-        unmeetable <<-MSG
-That database is empty. Load a database dump with:
-$ cat #{db_name} | ssh #{username}@#{shell('hostname -f')} 'psql #{db_name}'
+        unmeetable! <<-MSG
+The '#{db_name}' database is empty. Load a database dump with:
+$ cat #{db_name}.psql | ssh #{username}@#{shell('hostname -f')} 'psql #{db_name}'
         MSG
       end
     }
@@ -31,45 +31,32 @@ dep 'pg.gem' do
   provides []
 end
 
-dep 'postgres access', :username do
-  requires 'postgres.managed', 'user exists'.with(:username => username)
+dep 'postgres access', :username, :flags do
+  requires 'postgres.managed'
+  requires 'user exists'.with(:username => username)
+  username.default(shell('whoami'))
+  flags.default!('-SdR')
   met? { !sudo("echo '\\du' | #{which 'psql'}", :as => 'postgres').split("\n").grep(/^\W*\b#{username}\b/).empty? }
-  meet { sudo "createuser -SdR #{username}", :as => 'postgres' }
+  meet { sudo "createuser #{flags} #{username}", :as => 'postgres' }
 end
 
-dep 'postgres backups', :offsite_host do
+dep 'postgres backups' do
   requires 'postgres.managed'
-  met? { shell "test -x /etc/cron.hourly/postgres_offsite_backup" }
-  before {
-    sudo("ssh #{offsite_host} 'true'").tap {|result|
-      if result
-        log_ok "publickey login to #{offsite_host}"
-      else
-        log_error "You need to add root's public key to #{offsite_host}:~/.ssh/authorized_keys."
-      end
-    }
-  }
+  met? { shell? "test -x /etc/cron.hourly/psql_git" }
   meet {
-    render_erb 'postgres/offsite_backup.rb.erb', :to => '/usr/local/bin/postgres_offsite_backup', :perms => '755', :sudo => true
-    sudo "ln -sf /usr/local/bin/postgres_offsite_backup /etc/cron.hourly/"
+    render_erb 'postgres/psql_git.rb.erb', :to => '/usr/local/bin/psql_git', :perms => '755', :sudo => true
+    sudo "ln -sf /usr/local/bin/psql_git /etc/cron.hourly/"
   }
 end
 
 dep 'postgres.managed', :version do
-  version.default('9.1')
+  version.default('9.2')
   # Assume the installed version if there is one
   version.default!(shell('psql --version').val_for('psql (PostgreSQL)')[/^\d\.\d/]) if which('psql')
-  requires {
-    on :apt, 'set.locale', 'postgres.ppa'
-    on :brew, 'set.locale'
-  }
+  requires 'set.locale'
   installs {
     via :apt, ["postgresql-#{owner.version}", "libpq-dev"]
     via :brew, "postgresql"
   }
   provides "psql ~> #{version}.0"
-end
-
-dep 'postgres.ppa' do
-  adds 'ppa:pitti/postgresql'
 end

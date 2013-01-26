@@ -25,7 +25,7 @@ dep 'nginx.logrotate', :for => :linux do
   as "nginx"
 end
 
-dep 'rails.logrotate' do
-  renders "logrotate/rails.conf"
-  as var(:username)
+dep 'rack.logrotate', :username do
+  renders "logrotate/rack.conf"
+  as username
 end

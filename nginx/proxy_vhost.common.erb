@@ -1,11 +1,11 @@
-server_name <%= domain %> <%= var :extra_domains, :default => '' %> <%= var :www_aliases %>;
+server_name <%= server_names.join(' ') %>;
 
 if ($host !~ ^<%= domain.to_s.gsub('.', '\.') %>$) {
   rewrite ^(.*)$ http://<%= domain %>$1 permanent;
 }
 
 location / {
-  proxy_pass            http://<%= var(:host) %>:<%= var(:port) %>/;
+  proxy_pass            http://<%= proxy_host %>:<%= proxy_port %>/;
   proxy_redirect        off;
 
   proxy_set_header      Host            $host;

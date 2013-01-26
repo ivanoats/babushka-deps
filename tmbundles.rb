@@ -26,6 +26,10 @@ dep 'CoffeeScript.tmbundle' do
   source 'git://github.com/jashkenas/coffee-script-tmbundle.git'
 end
 
+dep 'Clojure.tmbundle' do
+  source 'https://github.com/swannodette/textmate-clojure.git'
+end
+
 dep 'Tcl.tmbundle' do
   source 'git://github.com/textmate/tcl.tmbundle.git'
 end
@@ -44,7 +48,11 @@ dep 'RubyAMP.tmbundle' do
 end
 
 dep 'SCSS.tmbundle' do
-  source 'git://github.com/kuroir/SCSS.git'
+  source 'git://github.com/kuroir/SCSS.tmbundle.git'
+end
+
+dep 'SASS.tmbundle' do
+  source 'https://github.com/seaofclouds/sass-textmate-bundle.git'
 end
 
 dep 'nginx.tmbundle' do

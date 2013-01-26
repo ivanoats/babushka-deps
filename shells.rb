@@ -1,6 +1,6 @@
 meta :shell_setup do
   template {
-    met? { grep which(basename), '/etc/shells' }
+    met? { '/etc/shells'.p.grep(which(basename)) }
     meet { append_to_file which(basename), '/etc/shells', :sudo => true }
   }
 end
@@ -10,7 +10,7 @@ dep 'fish.shell_setup' do
 end
 
 dep 'fish.src' do
-  requires 'ncurses.managed', 'coreutils.managed', 'gettext.managed'
+  requires 'ncurses.managed', 'coreutils.managed', 'gettext.lib'
   source "git://github.com/benhoskings/fish.git"
 end
 
@@ -22,7 +22,7 @@ dep 'zsh', :username do
 end
 
 dep 'zsh.shell_setup' do
-  requires 'zsh.managed'
+  requires 'zsh.bin'
 end
 
-dep 'zsh.managed'
+dep 'zsh.bin'

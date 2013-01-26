@@ -1,11 +1,13 @@
-dep 'git.ppa' do
-  adds 'ppa:git-core/ppa'
-end
-
 dep 'git.managed' do
-  requires 'git.ppa'
+  requires 'ppa'.with('ppa:git-core/ppa')
   installs 'git'
   provides 'git >= 1.7.4.1'
+end
+
+dep 'git.src', :version do
+  version.default!('1.7.9')
+  source "http://git-core.googlecode.com/files/git-#{version}.tar.gz"
+  met? { in_path? "git >= #{version}" }
 end
 
 dep 'web repo', :path do
@@ -60,43 +62,4 @@ end
 dep 'github token set' do
   met? { !shell('git config --global github.token').blank? }
   meet { shell("git config --global github.token '#{var(:github_token)}'")}
-end
-
-dep 'pushed.repo' do
-  requires 'remote exists.repo'
-  setup { repo.repo_shell "git fetch #{var(:remote_name)}" }
-  met? {
-    repo.repo_shell("git rev-parse --short #{var(:deploy_ref)}") ==
-    repo.repo_shell("git rev-parse --short #{var(:remote_name)}/#{var(:deploy_ref)}")
-  }
-  meet { repo.repo_shell "git push #{var(:remote_name)} #{var(:deploy_ref)}", :log => true }
-end
-
-dep 'remote exists.repo' do
-  def remote_url
-    repo.repo_shell("git config remote.#{var(:remote_name)}.url")
-  end
-  met? { remote_url == var(:remote_url) }
-  meet {
-    if remote_url.blank?
-      log "The #{var(:remote_name)} remote isn't configured."
-      repo.repo_shell("git remote add #{var(:remote_name)} '#{var(:remote_url)}'")
-    elsif remote_url != var(:remote_url)
-      log "The #{var(:remote_name)} remote has a different URL (#{var(:remote_url)})."
-      repo.repo_shell("git remote set-url #{var(:remote_name)} '#{var(:remote_url)}'")
-    end
-  }
-end
-
-dep 'gc all dirs in a folder' do
-  met? { !@completed.nil? }
-  meet {
-    var(:dev_dir, :default=>"/Users/tissak/Development")
-    Dir["#{var(:dev_dir)}/*"].each do |entry|
-      if File.directory?(entry) && File.directory?("#{entry}/.git")
-        log_shell "Actioning: #{entry}","cd #{entry} && git gc"
-      end
-    end
-    @completed = true
-  }
 end
